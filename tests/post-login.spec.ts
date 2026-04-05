@@ -1,17 +1,18 @@
 import { test, expect } from '@playwright/test';
-import { debugSleep, waitForEnter } from './debug-helpers';
+import { debugSleep, waitForEnter, acceptTermsIfVisible } from './debug-helpers';
 
 test.describe('Post-login tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('https://kaponline.com.br');
     await debugSleep();
-    await page.fill('input[name="email"]', 'teste@janeri.com.br');
+    await page.fill('input[name="email"]', process.env.TEST_EMAIL!);
     await debugSleep(500);
-    await page.fill('input[name="password"]', 'Teste2026!');
+    await page.fill('input[name="password"]', process.env.TEST_PASSWORD!);
     await debugSleep(500);
     await page.click('.login-button');
     await debugSleep();
     await page.waitForURL((url) => url.toString() !== 'https://kaponline.com.br');
+    await acceptTermsIfVisible(page);
     await debugSleep();
   });
 

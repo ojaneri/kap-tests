@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { debugSleep, waitForEnter } from './debug-helpers';
+import { debugSleep, waitForEnter, acceptTermsIfVisible } from './debug-helpers';
 
 test.afterEach(async () => {
   await waitForEnter();
@@ -8,9 +8,9 @@ test.afterEach(async () => {
 test('login with teste@janeri.com.br', async ({ page }) => {
   await page.goto('https://kaponline.com.br');
   await debugSleep();
-  await page.fill('input[name="email"]', 'teste@janeri.com.br');
+  await page.fill('input[name="email"]', process.env.TEST_EMAIL!);
   await debugSleep(500);
-  await page.fill('input[name="password"]', 'Teste2026!');
+  await page.fill('input[name="password"]', process.env.TEST_PASSWORD!);
   await debugSleep(500);
   await page.click('.login-button');
   await debugSleep();
@@ -22,18 +22,14 @@ test('login with teste@janeri.com.br', async ({ page }) => {
 test('login with testeexpirado@janeri.com.br', async ({ page }) => {
   await page.goto('https://kaponline.com.br');
   await debugSleep();
-  await page.fill('input[name="email"]', 'testeexpirado@janeri.com.br');
+  await page.fill('input[name="email"]', process.env.TEST_EMAIL_EXPIRADO!);
   await debugSleep(500);
-  await page.fill('input[name="password"]', 'Teste2026!');
+  await page.fill('input[name="password"]', process.env.TEST_PASSWORD!);
   await debugSleep(500);
   await page.click('.login-button');
   await debugSleep();
-  // Accept terms if shown before checking for error
-  const termsButton = page.locator('button:has-text("Li e Aceito os Termos de Uso")');
-  if (await termsButton.isVisible({ timeout: 5000 }).catch(() => false)) {
-    await termsButton.click();
-    await debugSleep();
-  }
+  await acceptTermsIfVisible(page);
+  await debugSleep();
   await expect(page.getByRole('heading', { name: 'Assinatura Expirada' })).toBeVisible({ timeout: 10000 });
   await debugSleep();
 });
